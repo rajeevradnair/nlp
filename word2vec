@@ -1,0 +1,87 @@
+Sure! Let's dive into **points 4** and **5** in more detail, with an example to help clarify how **multiplying probabilities** works and how **maximum likelihood estimation (MLE)** fits into this framework.
+
+### Point 4: **Example in the Context of Word2Vec**
+Let's start by revisiting Word2Vec (specifically the **Skip-Gram model**) and explain why we multiply the probabilities of the context words given the center word.
+
+#### Problem Setup (Skip-Gram Model in Word2Vec):
+In the **Skip-Gram model**, the goal is to **predict context words** given a **center word**. Suppose we have a sentence like:
+
+- *"The dog chased the cat."*
+
+Here, we want to predict the context words (like "dog", "chased", "cat") from the center word ("the"). For each center word, we calculate the probability of each context word given the center word.
+
+The likelihood of observing all the context words around a center word is the product of the probabilities of each context word, given the center word. For example, if "dog" is the center word, we might want to predict the context words (e.g., "chased", "cat").
+
+#### The Formula:
+For a center word \( w_{\text{center}} \), let’s say we have a sequence of context words \( w_1, w_2, \ldots, w_k \). The likelihood \( L(w_{\text{center}}) \) of observing these context words, given the center word, is the product of the individual probabilities of each context word:
+\[
+L(w_{\text{center}}) = P(w_1 \mid w_{\text{center}}) \times P(w_2 \mid w_{\text{center}}) \times \cdots \times P(w_k \mid w_{\text{center}})
+\]
+
+- \( P(w_i \mid w_{\text{center}}) \) is the probability that the context word \( w_i \) appears in the context of the center word \( w_{\text{center}} \).
+
+#### Example:
+Let’s say the center word is **"dog"**, and we have the following context words around it: **"chased"** and **"cat"**.
+
+1. The model computes the conditional probability \( P(\text{chased} \mid \text{dog}) \), which is the probability that "chased" appears in the context of "dog". 
+   
+2. Similarly, it computes \( P(\text{cat} \mid \text{dog}) \), the probability that "cat" appears in the context of "dog".
+
+Now, the likelihood of observing both context words "chased" and "cat" for the center word "dog" is:
+\[
+L(\text{dog}) = P(\text{chased} \mid \text{dog}) \times P(\text{cat} \mid \text{dog})
+\]
+
+This product tells us how likely it is to observe the specific context words ("chased" and "cat") given the center word ("dog").
+
+- If the model has learned that **"dog"** and **"chased"** often appear together in similar contexts, the probability \( P(\text{chased} \mid \text{dog}) \) will be high.
+- Similarly, if **"dog"** and **"cat"** appear together often, \( P(\text{cat} \mid \text{dog}) \) will also be high.
+
+By multiplying these probabilities, we get the **overall likelihood** of observing the entire context ("chased" and "cat") given the center word ("dog").
+
+### Point 5: **Maximum Likelihood Estimation (MLE)**
+In **maximum likelihood estimation (MLE)**, we are trying to estimate the parameters of a model that make the observed data as likely as possible. In the case of Word2Vec, these parameters are the **word vectors** that represent words in the embedding space.
+
+#### The Likelihood Function:
+For a dataset of center words and their corresponding context words, the **likelihood function** \( L(\theta) \) is the product of the probabilities of the context words given the center words, across all pairs in the dataset. Here, \( \theta \) represents the model parameters (in the case of Word2Vec, these parameters are the word vectors).
+
+If we have a set of observed word pairs \( \{ (w_{\text{center}}, w_{\text{context}}) \} \), the likelihood function is:
+\[
+L(\theta) = \prod_{(w_{\text{center}}, w_{\text{context}})} P(w_{\text{context}} \mid w_{\text{center}}; \theta)
+\]
+The likelihood function computes the **joint probability** of the observed word pairs, given the parameters \( \theta \) (the current word embeddings).
+
+#### Maximizing the Likelihood (MLE):
+To find the best model parameters, we use **maximum likelihood estimation (MLE)**. The idea is to adjust the parameters \( \theta \) (i.e., the word vectors) so that the likelihood of the observed data (word pairs) is as high as possible. This can be done by **maximizing** the likelihood function \( L(\theta) \).
+
+Since it's often easier to work with **log-likelihood** rather than the likelihood itself (because the logarithm of a product becomes a sum), we use the **log-likelihood**:
+\[
+\log L(\theta) = \sum_{(w_{\text{center}}, w_{\text{context}})} \log P(w_{\text{context}} \mid w_{\text{center}}; \theta)
+\]
+Maximizing the log-likelihood is equivalent to maximizing the likelihood but simplifies the computation.
+
+#### Example:
+Imagine we have a dataset of word pairs from the sentence **"The dog chased the cat."**. The pairs might look like:
+
+- (center: "dog", context: "chased")
+- (center: "dog", context: "cat")
+
+Now, let’s say we want to **train the model** to find the best embeddings for the words "dog", "chased", and "cat". The objective is to maximize the likelihood of the word pairs appearing together in the context of the center word. 
+
+The model starts with **random embeddings** for each word (i.e., the word vectors for "dog", "chased", and "cat" are initially random). 
+
+The likelihood function is the product of the probabilities \( P(\text{chased} \mid \text{dog}) \) and \( P(\text{cat} \mid \text{dog}) \). The model adjusts the word vectors using an optimization algorithm (like **stochastic gradient descent**) to maximize the **log-likelihood**:
+\[
+\log L(\theta) = \log P(\text{chased} \mid \text{dog}) + \log P(\text{cat} \mid \text{dog})
+\]
+
+As training progresses, the model updates the word vectors for "dog", "chased", and "cat" to maximize this log-likelihood.
+
+### Intuition Behind MLE in Word2Vec:
+- **Higher probabilities**: The model learns to adjust the vectors so that **similar words** (those that tend to appear in similar contexts) have **closer vectors**, which increases the probability of predicting those words in the context of the center word.
+- **Training Goal**: The model's ultimate goal is to maximize the likelihood of observing the actual word pairs in the training data. By adjusting the word vectors, the model learns to produce high probabilities for context words that are often observed with the center word.
+
+#### In Summary:
+- **Multiplying probabilities** allows us to compute the overall likelihood of observing a sequence of dependent events (in this case, context words given a center word).
+- **Maximum Likelihood Estimation (MLE)** is the method used to **optimize** the model parameters (the word vectors) by maximizing the likelihood of observing the actual data. By adjusting the word vectors to increase the likelihood of the observed word pairs, the model learns the semantic relationships between words based on their co-occurrence in the data.
+
